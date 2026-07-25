@@ -65,4 +65,13 @@ build-hashed class names, so a redesign doesn't silently break it. Verified agai
   its snapshot page says so — use **save now** to capture it going forward.
 - **Reads only organic result links.** Ads, Google's own properties, and image thumbnails are skipped.
 
+## More tools
+
+- **[Carryover](https://github.com/cig13zs/carryover)** — AI chat context transfer for ChatGPT, DeepSeek & Grok
+- **[Invisibles](https://github.com/cig13zs/invisibles)** — reveal & strip hidden Unicode from text
+- **[Rinse](https://github.com/cig13zs/rinse)** — see the GPS in a photo, then wash it off
+- **[Return 100 Results](https://github.com/cig13zs/return-100-results)** — browse ~100 Google results as one page
+
+All free, all offline, all open source. [More →](https://github.com/cig13zs/About-Me)
+
 MIT licensed. Do what you like with it.
