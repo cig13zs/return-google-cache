@@ -1,23 +1,16 @@
 /*
- * Return Google Cache — core logic.
+ * Core logic, kept out of content.js so the URL building is testable in Node.
  *
- * Two pure-ish pieces, kept out of content.js so the URL building can be
- * unit-tested in Node and the DOM walk can be re-run by a MutationObserver:
- *
- *   cacheLinks(url)   -> { wayback, archive, save }   (pure, tested)
- *   enhance(doc)      -> adds a "Cached" row under each Google result
- *
- * Google removed the Cached link in Sept 2024. This puts a working one back,
- * pointed at the Internet Archive + archive.today. No server, no tracking.
+ *   cacheLinks(url)  -> { wayback, archive, save }
+ *   enhance(doc)     -> adds a Cached row under each Google result
  */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.RGC = factory();
 }(typeof self !== 'undefined' ? self : this, function () {
 
-  // Latest snapshot on the Wayback Machine is /web/2/<url> (redirects to newest
-  // capture). archive.today's /newest/ does the same. Save endpoint archives now.
-  // URLs are appended raw — these services expect the target URL unescaped.
+  // /web/2/<url> redirects to the newest Wayback capture; archive.today's
+  // /newest/ does the same. URLs go in raw, these services expect unescaped.
   function cacheLinks(url) {
     return {
       wayback: 'https://web.archive.org/web/2/' + url,
@@ -26,7 +19,7 @@
     };
   }
 
-  // Is this anchor an actual organic result link (not a Google internal / ad / anchor)?
+  // True for organic result links. Skips Google's own pages, ads and anchors.
   function isResultLink(href, hostname) {
     if (!href || href.indexOf('http') !== 0) return false;
     try {
@@ -63,9 +56,9 @@
     return row;
   }
 
-  // Walk every result title (h3), find its link, and drop a cached row under it.
-  // Anchored on h3 -> closest anchor so a class-name redesign doesn't break it.
-  // Returns the number of rows newly added (handy for the test / observer).
+  // Walks each result title (h3) to its link and adds a row underneath.
+  // Anchored on h3 so a class-name redesign doesn't break it.
+  // Returns how many rows were added.
   function enhance(doc) {
     var hostname = (doc.location && doc.location.hostname) || 'www.google.com';
     var heads = doc.querySelectorAll('h3');
