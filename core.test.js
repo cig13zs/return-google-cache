@@ -17,10 +17,14 @@ assert.strictEqual(RGC.isResultLink('https://wikipedia.org/wiki/X', host), true)
 assert.strictEqual(RGC.isResultLink('http://news.bbc.co.uk/story', host), true);
 assert.strictEqual(RGC.isResultLink('https://www.google.com/search?q=x', host), false);
 assert.strictEqual(RGC.isResultLink('https://maps.google.com/place', host), false);
+assert.strictEqual(RGC.isResultLink('https://maps.google.co.uk/place', host), false);
+assert.strictEqual(RGC.isResultLink('https://news.google.com.ph/story', host), false);
 assert.strictEqual(RGC.isResultLink('https://lh3.googleusercontent.com/img', host), false);
 assert.strictEqual(RGC.isResultLink('/search?q=next', host), false);   // relative
 assert.strictEqual(RGC.isResultLink('#', host), false);
 assert.strictEqual(RGC.isResultLink('javascript:void(0)', host), false);
+assert.strictEqual(RGC.isResultLink('httpx://example.com/path', host), false);
+assert.strictEqual(RGC.isResultLink('data:text/html,hello', host), false);
 assert.strictEqual(RGC.isResultLink('', host), false);
 assert.strictEqual(RGC.isResultLink(undefined, host), false);
 

@@ -21,11 +21,13 @@
 
   // True for organic result links. Skips Google's own pages, ads and anchors.
   function isResultLink(href, hostname) {
-    if (!href || href.indexOf('http') !== 0) return false;
+    if (!href) return false;
     try {
-      var h = new URL(href).hostname;
+      var parsed = new URL(href);
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return false;
+      var h = parsed.hostname;
       if (!h || h === hostname) return false;                 // skip google's own links
-      if (/(^|\.)google\.com$/.test(h)) return false;
+      if (/(^|\.)google(?:\.[a-z]{2,3}){1,2}$/i.test(h)) return false;
       if (/(^|\.)googleusercontent\.com$/.test(h)) return false;
       return true;
     } catch (e) { return false; }

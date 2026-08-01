@@ -13,6 +13,7 @@
       '.rgc-label{opacity:.75}' +
       '.rgc-link{color:#1a73e8;text-decoration:none}' +
       '.rgc-link:hover{text-decoration:underline}' +
+      '.rgc-link:focus-visible{outline:2px solid #1a73e8;outline-offset:2px}' +
       '.rgc-sep{color:#9aa0a6}' +
       '@media (prefers-color-scheme:dark){.rgc-row{color:#9aa0a6}.rgc-link{color:#8ab4f8}}';
     (document.head || document.documentElement).appendChild(s);
