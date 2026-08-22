@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Privacy policy for the Search Restore browser extension.">
+  <meta name="theme-color" content="#fffaf1">
+  <title>Privacy | Search Restore</title>
+  <link rel="icon" href="extension/icons/icon48.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="Search Restore home">
+      <img src="extension/icons/icon48.png" width="40" height="40" alt="">
+      <span>Search Restore</span>
+    </a>
+    <nav aria-label="Main navigation">
+      <a href="./">Home</a>
+      <a href="https://github.com/cig13zs/search-restore">GitHub</a>
+    </nav>
+  </header>
+
+  <main class="legal" id="main">
+    <p class="eyebrow">Privacy policy</p>
+    <h1>Search Restore keeps no search history.</h1>
+    <p class="updated">Effective August 23, 2026</p>
+
+    <h2>Data collection</h2>
+    <p>Search Restore does not collect, sell or transmit personal data. It has no analytics, advertising, account system or remote server.</p>
+
+    <h2>What the extension reads</h2>
+    <p>On the supported Google Search pages, the extension reads result titles and destination URLs already displayed in the page. It uses those URLs to build archive links in the page. It does not keep a record of the search query or result URLs.</p>
+
+    <h2>Network requests</h2>
+    <p>The load-more feature requests the next Google results page only after you press its button. That request goes to the same Google domain already open in the tab. The extension does not send the response elsewhere.</p>
+    <p>Wayback Machine, archive.today and save-now pages open only after you choose one of their links. Those sites receive the result URL as part of the link you open and apply their own privacy policies.</p>
+
+    <h2>Stored settings</h2>
+    <p>The extension stores two on/off preferences with <code>chrome.storage.local</code>. Chrome keeps them on the device. They are not placed in Chrome Sync.</p>
+
+    <h2>Permissions</h2>
+    <p>The <code>storage</code> permission saves those two preferences. The content script runs only on the listed HTTPS Google Search URLs. Chrome may describe that scope as permission to read and change data on those sites because inspecting and updating the visible results page is the extension's purpose. The manifest has no separate <code>host_permissions</code> entry.</p>
+
+    <h2>Chrome Web Store Limited Use</h2>
+    <p>Search Restore's use of information received from Chrome APIs follows the Chrome Web Store User Data Policy, including its Limited Use requirements. Search result titles and destination URLs are used only for the visible archive and result-loading features. They are not retained, sold, used for advertising, or transferred to another party except when you deliberately open an archive link.</p>
+
+    <h2>Questions</h2>
+    <p>Open an issue in the <a href="https://github.com/cig13zs/search-restore/issues">public issue tracker</a>. Do not include private search queries or account details in an issue.</p>
+  </main>
+
+  <footer>
+    <p>MIT licensed. Not affiliated with Google, the Internet Archive or archive.today.</p>
+    <a href="https://ko-fi.com/jju1s">Support on Ko-fi</a>
+  </footer>
+</body>
+</html>

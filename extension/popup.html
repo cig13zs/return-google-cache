@@ -1,24 +1,57 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<style>
-  body{width:260px;margin:0;padding:16px;font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#18181b;background:#fff}
-  @media (prefers-color-scheme:dark){body{background:#161619;color:#f2f2f3}}
-  h1{font-size:15px;margin:0 0 6px}
-  p{margin:0 0 12px;color:#5d5d66;font-size:12.5px}
-  @media (prefers-color-scheme:dark){p{color:#a1a1aa}}
-  a{display:block;text-decoration:none;font-weight:600;font-size:13px;padding:9px 12px;border-radius:8px;margin-bottom:8px;text-align:center}
-  a:focus-visible{outline:3px solid #1a73e8;outline-offset:2px}
-  .kofi{background:#FF5E5B;color:#fff}
-  .gh{background:#f4f4f2;color:#18181b}
-  @media (prefers-color-scheme:dark){.gh{background:#26262b;color:#f2f2f3}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Choose which Search Restore tools run on Google search pages.">
+  <title>Search Restore settings</title>
+  <link rel="icon" href="icons/icon48.png">
+  <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <h1>Return Google Cache</h1>
-  <p>A Cached link is back on every result: Wayback Machine, archive.today, or save it now. Nothing is sent anywhere.</p>
-  <a class="kofi" href="https://ko-fi.com/jju1s" target="_blank" rel="noopener">☕ Support on Ko-fi</a>
-  <a class="gh" href="https://github.com/cig13zs/return-google-cache" target="_blank" rel="noopener">Source on GitHub</a>
+  <main class="panel">
+    <header class="masthead">
+      <img src="icons/icon48.png" width="48" height="48" alt="">
+      <div>
+        <h1>Search Restore</h1>
+        <p>Two small repairs for Google results.</p>
+      </div>
+    </header>
+
+    <section class="settings" aria-labelledby="features-title">
+      <h2 id="features-title">Features</h2>
+
+      <label class="setting" for="archive-links">
+        <span class="setting-copy">
+          <span class="setting-name">Archive links</span>
+          <span class="setting-note">Wayback, archive.today and save now under each result</span>
+        </span>
+        <span class="switch">
+          <input id="archive-links" type="checkbox" data-setting="archiveLinks" checked>
+          <span class="switch-track" aria-hidden="true"></span>
+        </span>
+      </label>
+
+      <label class="setting" for="load-more">
+        <span class="setting-copy">
+          <span class="setting-name">Load more results</span>
+          <span class="setting-note">Adds pages one at a time, up to about 100 results</span>
+        </span>
+        <span class="switch">
+          <input id="load-more" type="checkbox" data-setting="loadMore" checked>
+          <span class="switch-track" aria-hidden="true"></span>
+        </span>
+      </label>
+    </section>
+
+    <p class="status" id="settings-status" role="status" aria-live="polite">Saved on this device.</p>
+
+    <nav class="links" aria-label="Project links">
+      <a href="https://github.com/cig13zs/search-restore" target="_blank" rel="noopener noreferrer">Source</a>
+      <a href="https://cig13zs.github.io/search-restore/privacy.html" target="_blank" rel="noopener noreferrer">Privacy</a>
+      <a class="support" href="https://ko-fi.com/jju1s" target="_blank" rel="noopener noreferrer">Support on Ko-fi</a>
+    </nav>
+  </main>
+  <script src="settings.js"></script>
 </body>
 </html>

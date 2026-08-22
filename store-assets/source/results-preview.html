@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Search Restore results preview</title>
+  <link rel="stylesheet" href="../../extension/content.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #fff; color: #202124; font: 14px/1.55 Arial, sans-serif; margin: 0; }
+    header { align-items: center; border-bottom: 1px solid #e4e7eb; display: flex; gap: 28px; height: 108px; padding: 24px 72px; }
+    .mark { height: 56px; width: 56px; }
+    .search-box { border: 1px solid #d6dbe0; border-radius: 24px; box-shadow: 0 1px 4px rgb(30 50 70 / 10%); color: #4c5965; font-size: 16px; max-width: 650px; padding: 12px 20px; width: 60vw; }
+    main { margin-left: clamp(72px, 14vw, 190px); max-width: 730px; padding: 34px 0 70px; }
+    .about { color: #6b7280; font-size: 12px; margin-bottom: 22px; }
+    article { margin-bottom: 30px; }
+    .url { color: #3c4c58; font-size: 12px; margin: 0 0 2px; }
+    h2 { color: #244f76; font-size: 20px; font-weight: 500; line-height: 1.25; margin: 0 0 5px; }
+    article > p:last-of-type { color: #4f5962; margin: 0; }
+    .sr-archive-row { margin-top: 5px; }
+    .preview-label { background: #fffaf1; border: 1px solid #d9d2c5; border-radius: 6px; color: #64717e; font: 11px system-ui, sans-serif; padding: 7px 10px; position: fixed; right: 24px; top: 22px; }
+  </style>
+</head>
+<body>
+  <header>
+    <img class="mark" src="../../extension/icons/icon48.png" alt="">
+    <div class="search-box">research notes from an older website</div>
+  </header>
+  <main>
+    <p class="about">About 10 results</p>
+    <article>
+      <p class="url">example.org / field-notes</p>
+      <h2>Field notes from the original site</h2>
+      <p>An indexed page can change or disappear. Search Restore adds direct choices under its normal result.</p>
+      <span class="sr-archive-row">
+        <span class="sr-archive-label">Archive:</span>
+        <a class="sr-archive-link" href="#">Wayback</a>
+        <a class="sr-archive-link" href="#">archive.today</a>
+        <a class="sr-archive-link" href="#">save now</a>
+      </span>
+    </article>
+    <article>
+      <p class="url">reference.test / index</p>
+      <h2>Reference index and source list</h2>
+      <p>The archive controls repeat only on normal external result links.</p>
+      <span class="sr-archive-row">
+        <span class="sr-archive-label">Archive:</span>
+        <a class="sr-archive-link" href="#">Wayback</a>
+        <a class="sr-archive-link" href="#">archive.today</a>
+        <a class="sr-archive-link" href="#">save now</a>
+      </span>
+    </article>
+    <div class="sr-load-bar" data-sr-load-bar="1">
+      <button class="sr-load-button" type="button">Load results 11-20</button>
+      <span class="sr-load-status" role="status">Later pages stay in this list.</span>
+    </div>
+  </main>
+  <p class="preview-label">Search Restore interface preview</p>
+</body>
+</html>

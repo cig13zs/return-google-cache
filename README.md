@@ -1,81 +1,84 @@
-# Return Google Cache
+# Search Restore
 
-Google removed the Cached link from search results in 2024. This puts a working
-one back on every result, pointed at the Wayback Machine and archive.today.
+Search Restore combines two Google Search repairs in one Chrome extension:
+archive links under normal results and a button that loads later result pages
+into the current list.
 
-[![Ko-fi](https://img.shields.io/badge/Ko--fi-buy_me_a_coffee-FF5E5B?style=flat-square&logo=ko-fi&logoColor=white)](https://ko-fi.com/jju1s)
-[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
-[![Tests](https://img.shields.io/github/actions/workflow/status/cig13zs/return-google-cache/test.yml?style=flat-square&label=tests)](https://github.com/cig13zs/return-google-cache/actions)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-support-FF5E5B?style=flat-square&logo=ko-fi&logoColor=white)](https://ko-fi.com/jju1s)
+[![License](https://img.shields.io/badge/license-MIT-17324d?style=flat-square)](LICENSE)
+[![Tests](https://img.shields.io/github/actions/workflow/status/cig13zs/search-restore/test.yml?style=flat-square&label=tests)](https://github.com/cig13zs/search-restore/actions)
 
-**[cig13zs.github.io/return-google-cache](https://cig13zs.github.io/return-google-cache/)**
+## Features
 
-For about twenty years every Google result had a Cached link. One click to see
-the page as Google last saw it, which was the thing you reached for when a page
-was down, paywalled, changed or gone. Google retired it. This adds it back using
-the Internet Archive.
+Archive links can open the latest Wayback Machine capture, check archive.today
+or save the live page. The load-more button requests one Google result page per
+click and stops near 100 results.
 
-Under each result you get a small row:
-
-```
-↻ Cached · archive.today · save now
-```
-
-Cached is the latest Wayback Machine snapshot, archive.today is its independent
-mirror, and save now archives the live page immediately.
-
-## No server, no tracking
-
-It reads the result links already rendered on your screen and builds archive
-URLs locally. It opens no connection of its own, has no analytics, and declares
-no `permissions` key. It runs on Google search pages and can do nothing else.
+Each feature has its own switch. The switches default to on and are stored with
+`chrome.storage.local`.
 
 ## Install
 
-Not on the Chrome Web Store yet, so load it unpacked. Works in Chrome, Edge,
-Brave and Opera.
+1. Download the release ZIP and extract it.
+2. Open `chrome://extensions` and turn on Developer mode.
+3. Choose Load unpacked and select the extracted folder.
+4. Open a supported Google search page.
 
-1. Download the latest zip from [Releases](https://github.com/cig13zs/return-google-cache/releases) and unzip it.
-2. Open `chrome://extensions`, turn on Developer mode.
-3. Load unpacked, then pick the `extension` folder.
-4. Search Google. The Cached links are there.
+The ZIP puts `manifest.json` at its root, so the extracted folder is the one to
+select. Chrome, Edge, Brave and Opera can load MV3 extensions this way.
+
+## Scope and privacy
+
+The manifest declares only the `storage` permission. It has no
+`host_permissions` key. Its content script is limited to the HTTPS `/search`
+path on the Google domains listed in `manifest.json`, with a second runtime
+check that requires `location.pathname === '/search'`.
+
+Chrome may describe that content-script scope as permission to read and change
+data on the listed Google sites. That access is what lets Search Restore inspect
+the visible result links and add controls to the search page; it does not cover
+other sites or other Google paths.
+
+There is no analytics or extension server. The two switches stay in local
+extension storage. Google receives a request only when the user presses the
+load-more button. An archive service opens only after the user chooses its link.
+See [PRIVACY.md](PRIVACY.md) for the full policy.
+
+## Build and test
+
+Node and Python are enough for the release checks.
+
+```text
+node tests/core.test.js
+node tests/content.test.js
+python scripts/package.py
+python tests/site.test.py
+python tests/package.test.py
+```
+
+`scripts/package.py` writes a sorted ZIP with fixed timestamps, then writes its
+SHA-256 checksum. `tests/package.test.py` builds twice in temporary directories
+and compares the bytes.
+
+## Google markup limits
+
+This extension is a page repair, not an official Google API client. The archive
+feature looks for result title links under `#rso`. Pagination uses the `start`
+query parameter and extracts result blocks from the next page. Google can change
+either behavior without notice.
+
+A read-only check on August 23, 2026 found one `#rso` container and seven linked
+`h3` result titles for the query `example`. The same check found no captcha. See
+[MAINTENANCE.md](MAINTENANCE.md) for the selectors and failure cases that need
+watching.
 
 ## Files
 
-```
-extension/
-  manifest.json   MV3, runs only on google search pages
-  core.js         cacheLinks() + enhance(), works in browser and Node
-  content.js      injects styling, runs enhance(), re-runs as results stream in
-  popup.html      toolbar popup
-  icons/
-core.test.js      node core.test.js
+```text
+extension/           Chrome MV3 package source
+scripts/package.py   deterministic ZIP and checksum builder
+store-assets/        Chrome Web Store artwork and screenshots
+tests/               core, content, manifest, page and package checks
 ```
 
-```bash
-node core.test.js
-```
-
-The result walk is anchored on each result's `<h3>` title and then its link,
-rather than on Google's build-hashed class names, so a redesign doesn't silently
-break it.
-
-## Limits
-
-Covers the main Google TLDs (com, co.uk, ca, de, fr, in, br, ph, jp and others).
-If your local Google domain isn't in the manifest, add one line and reload.
-
-Archives don't have every page. If the Wayback Machine never captured a URL its
-snapshot page says so, and you can use save now to capture it going forward.
-
-Reads organic result links only. Ads, Google's own properties and image
-thumbnails are skipped.
-
-## More tools
-
-- [Carryover](https://github.com/cig13zs/carryover), AI chat context transfer for ChatGPT, DeepSeek and Grok
-- [Invisibles](https://github.com/cig13zs/invisibles), reveal and strip hidden Unicode from text
-- [Rinse](https://github.com/cig13zs/rinse), see the GPS in a photo and wash it off
-- [Return 100 Results](https://github.com/cig13zs/return-100-results), browse ~100 Google results as one page
-
-Not affiliated with Google or the Internet Archive. MIT licensed.
-[Ko-fi](https://ko-fi.com/jju1s) if you want to.
+Not affiliated with Google, the Internet Archive or archive.today. MIT licensed.

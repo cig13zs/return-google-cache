@@ -1,5 +1,12 @@
 name: test
-on: [push, pull_request]
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -7,5 +14,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      - run: node core.test.js
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: node tests/core.test.js
+      - run: node tests/content.test.js
+      - run: python scripts/package.py
+      - run: python tests/site.test.py
+      - run: python tests/package.test.py

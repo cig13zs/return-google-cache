@@ -1,84 +1,171 @@
-/*
- * Core logic, kept out of content.js so the URL building is testable in Node.
- *
- *   cacheLinks(url)  -> { wayback, archive, save }
- *   enhance(doc)     -> adds a Cached row under each Google result
- */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.RGC = factory();
+  if (typeof module === 'object' && module.exports) {
+    module.exports = factory();
+  } else {
+    root.SearchRestore = factory();
+  }
 }(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
 
-  // /web/2/<url> redirects to the newest Wayback capture; archive.today's
-  // /newest/ does the same. URLs go in raw, these services expect unescaped.
+  var DEFAULT_SETTINGS = Object.freeze({
+    archiveLinks: true,
+    loadMore: true
+  });
+
+  function normalizeSettings(value) {
+    value = value || {};
+    return {
+      archiveLinks: value.archiveLinks !== false,
+      loadMore: value.loadMore !== false
+    };
+  }
+
+  function currentStart(href) {
+    var url = new URL(href, 'https://www.google.com');
+    var value = parseInt(url.searchParams.get('start') || '0', 10);
+    return Number.isFinite(value) && value > 0 ? value : 0;
+  }
+
+  function nextPageUrl(href, step) {
+    var url = new URL(href, 'https://www.google.com');
+    var amount = Number.isFinite(step) && step > 0 ? step : 10;
+    url.searchParams.set('start', String(currentStart(url.toString()) + amount));
+    return url.toString();
+  }
+
+  function looksBlocked(html) {
+    var visibleMarkup = String(html || '')
+      .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ')
+      .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' ');
+    return /<form\b[^>]*action=["'][^"']*\/sorry\//i.test(visibleMarkup) ||
+      /id=["'](?:recaptcha|captcha-form)["']/i.test(visibleMarkup) ||
+      /detected unusual traffic/i.test(visibleMarkup) ||
+      /<title>\s*Sorry\b/i.test(visibleMarkup);
+  }
+
+  function isResultLink(href, currentHostname) {
+    if (!href) return false;
+    try {
+      var url = new URL(href);
+      if (url.protocol !== 'http:' && url.protocol !== 'https:') return false;
+      var hostname = url.hostname.toLowerCase();
+      var pageHostname = String(currentHostname || '').toLowerCase();
+      if (!hostname || hostname === pageHostname) return false;
+      if (/(^|\.)google(?:\.[a-z]{2,3}){1,2}$/i.test(hostname)) return false;
+      if (/(^|\.)googleusercontent\.com$/i.test(hostname)) return false;
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function findResultBlock(anchor, resultRoot) {
+    var known = anchor.closest ? anchor.closest('.MjjYud') : null;
+    if (known && resultRoot.contains(known)) return known;
+
+    var node = anchor;
+    var fallback = anchor.parentElement || anchor;
+    while (node && node.parentElement && node !== resultRoot) {
+      node = node.parentElement;
+      if (node === resultRoot) break;
+      if (!node.querySelectorAll) continue;
+      var ownHeadings = node.querySelectorAll('h3').length;
+      if (ownHeadings === 1) fallback = node;
+      var parent = node.parentElement;
+      if (ownHeadings === 1 && parent && parent.querySelectorAll && parent.querySelectorAll('h3').length > 1) {
+        return node;
+      }
+    }
+    return fallback;
+  }
+
+  function collectResults(root, currentHostname) {
+    if (!root || (!root.querySelectorAll && !root.querySelector)) return [];
+    var resultRoot;
+    if (root.id === 'rso') resultRoot = root;
+    else if (root.nodeType === 9 || root.documentElement) resultRoot = root.querySelector('#rso');
+    else resultRoot = root.querySelector('#rso') || root;
+    if (!resultRoot) return [];
+
+    var headings = resultRoot.querySelectorAll('h3');
+    var seen = Object.create(null);
+    var results = [];
+    for (var i = 0; i < headings.length; i++) {
+      var heading = headings[i];
+      var anchor = heading.closest ? heading.closest('a') : null;
+      if (!anchor) continue;
+      var href = anchor.getAttribute('href') || anchor.href;
+      if (!isResultLink(href, currentHostname) || seen[href]) continue;
+      seen[href] = true;
+      results.push({
+        anchor: anchor,
+        block: findResultBlock(anchor, resultRoot),
+        heading: heading,
+        href: href
+      });
+    }
+    return results;
+  }
+
   function cacheLinks(url) {
     return {
       wayback: 'https://web.archive.org/web/2/' + url,
-      archive: 'https://archive.ph/newest/' + url,
+      archiveToday: 'https://archive.ph/newest/' + url,
       save: 'https://web.archive.org/save/' + url
     };
   }
 
-  // True for organic result links. Skips Google's own pages, ads and anchors.
-  function isResultLink(href, hostname) {
-    if (!href) return false;
-    try {
-      var parsed = new URL(href);
-      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return false;
-      var h = parsed.hostname;
-      if (!h || h === hostname) return false;                 // skip google's own links
-      if (/(^|\.)google(?:\.[a-z]{2,3}){1,2}$/i.test(h)) return false;
-      if (/(^|\.)googleusercontent\.com$/.test(h)) return false;
-      return true;
-    } catch (e) { return false; }
-  }
-
-  var MARK = 'data-rgc';
-
-  function makeRow(doc, url) {
+  function createArchiveRow(doc, url, title) {
     var links = cacheLinks(url);
-    var row = doc.createElement('div');
-    row.className = 'rgc-row';
-    row.setAttribute(MARK, '1');
-    var parts = [['Cached', links.wayback], ['archive.today', links.archive], ['save now', links.save]];
+    var row = doc.createElement('span');
+    row.className = 'sr-archive-row';
+    row.setAttribute('data-sr-archive-row', '1');
+    row.setAttribute('aria-label', 'Archived copies for ' + (title || 'this result'));
+
     var label = doc.createElement('span');
-    label.className = 'rgc-label';
-    label.textContent = '↻ '; // ↻
+    label.className = 'sr-archive-label';
+    label.textContent = 'Archive:';
     row.appendChild(label);
+
+    var parts = [
+      ['Wayback', links.wayback],
+      ['archive.today', links.archiveToday],
+      ['save now', links.save]
+    ];
     for (var i = 0; i < parts.length; i++) {
-      if (i) { var sep = doc.createElement('span'); sep.className = 'rgc-sep'; sep.textContent = ' · '; row.appendChild(sep); }
-      var a = doc.createElement('a');
-      a.className = 'rgc-link';
-      a.href = parts[i][1];
-      a.textContent = parts[i][0];
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-      row.appendChild(a);
+      var link = doc.createElement('a');
+      link.className = 'sr-archive-link';
+      link.href = parts[i][1];
+      link.textContent = parts[i][0];
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      row.appendChild(link);
     }
     return row;
   }
 
-  // Walks each result title (h3) to its link and adds a row underneath.
-  // Anchored on h3 so a class-name redesign doesn't break it.
-  // Returns how many rows were added.
-  function enhance(doc) {
-    var hostname = (doc.location && doc.location.hostname) || 'www.google.com';
-    var heads = doc.querySelectorAll('h3');
-    var added = 0;
-    for (var i = 0; i < heads.length; i++) {
-      var h3 = heads[i];
-      var a = h3.closest ? h3.closest('a') : null;
-      if (!a) continue;
-      var href = a.getAttribute('href') || a.href;
-      if (!isResultLink(href, hostname)) continue;
-      // anchor the row on the h3's block so we insert once per result
-      var block = a.closest ? (a.closest('div') || a.parentNode) : a.parentNode;
-      if (!block || block.querySelector('[' + MARK + ']')) continue;
-      block.appendChild(makeRow(doc, href));
-      added++;
+  function extractResultBlocks(html, DOMParserImpl, currentHostname) {
+    var Parser = DOMParserImpl || (typeof DOMParser !== 'undefined' ? DOMParser : null);
+    if (!Parser) return [];
+    var doc = new Parser().parseFromString(String(html || ''), 'text/html');
+    var results = collectResults(doc, currentHostname);
+    var blocks = [];
+    for (var i = 0; i < results.length; i++) {
+      if (blocks.indexOf(results[i].block) === -1) blocks.push(results[i].block);
     }
-    return added;
+    return blocks;
   }
 
-  return { cacheLinks: cacheLinks, isResultLink: isResultLink, enhance: enhance };
+  return {
+    DEFAULT_SETTINGS: DEFAULT_SETTINGS,
+    cacheLinks: cacheLinks,
+    collectResults: collectResults,
+    createArchiveRow: createArchiveRow,
+    currentStart: currentStart,
+    extractResultBlocks: extractResultBlocks,
+    isResultLink: isResultLink,
+    looksBlocked: looksBlocked,
+    nextPageUrl: nextPageUrl,
+    normalizeSettings: normalizeSettings
+  };
 }));
