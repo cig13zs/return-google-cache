@@ -255,3 +255,15 @@ h2 {
     transition: none;
   }
 }
+
+.select {
+  flex: none;
+  min-height: 30px;
+  padding: 4px 8px;
+  border: 1px solid var(--line, #ccc);
+  border-radius: 8px;
+  background: inherit;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+}

@@ -3,9 +3,12 @@
 const assert = require('assert');
 const SearchRestore = require('../extension/core.js');
 
-assert.deepStrictEqual(SearchRestore.normalizeSettings(), { archiveLinks: true, loadMore: true });
-assert.deepStrictEqual(SearchRestore.normalizeSettings({ archiveLinks: false }), { archiveLinks: false, loadMore: true });
-assert.deepStrictEqual(SearchRestore.normalizeSettings({ loadMore: false }), { archiveLinks: true, loadMore: false });
+assert.deepStrictEqual(SearchRestore.normalizeSettings(), { archiveLinks: true, loadMore: true, autoLoad: false, maxResults: 100 });
+assert.deepStrictEqual(SearchRestore.normalizeSettings({ archiveLinks: false }), { archiveLinks: false, loadMore: true, autoLoad: false, maxResults: 100 });
+assert.deepStrictEqual(SearchRestore.normalizeSettings({ autoLoad: true, maxResults: 50 }), { archiveLinks: true, loadMore: true, autoLoad: true, maxResults: 50 });
+assert.deepStrictEqual(SearchRestore.normalizeSettings({ maxResults: 77 }), { archiveLinks: true, loadMore: true, autoLoad: false, maxResults: 100 }, 'invalid limit falls back');
+assert.strictEqual(typeof SearchRestore.collectLoadedUrls, 'function', 'collectLoadedUrls exported');
+assert.deepStrictEqual(SearchRestore.normalizeSettings({ loadMore: false }), { archiveLinks: true, loadMore: false, autoLoad: false, maxResults: 100 });
 
 assert.strictEqual(SearchRestore.currentStart('https://www.google.com/search?q=test'), 0);
 assert.strictEqual(SearchRestore.currentStart('https://www.google.com/search?q=test&start=40'), 40);

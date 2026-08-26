@@ -35,12 +35,35 @@
       <label class="setting" for="load-more">
         <span class="setting-copy">
           <span class="setting-name">Load more results</span>
-          <span class="setting-note">Adds pages one at a time, up to about 100 results</span>
+          <span class="setting-note">Adds pages one at a time, up to your result limit</span>
         </span>
         <span class="switch">
           <input id="load-more" type="checkbox" data-setting="loadMore" checked>
           <span class="switch-track" aria-hidden="true"></span>
         </span>
+      </label>
+
+      <label class="setting" for="auto-load">
+        <span class="setting-copy">
+          <span class="setting-name">Auto-load while scrolling</span>
+          <span class="setting-note">Loads the next page as you reach the bottom. Off by default.</span>
+        </span>
+        <span class="switch">
+          <input id="auto-load" type="checkbox" data-setting="autoLoad">
+          <span class="switch-track" aria-hidden="true"></span>
+        </span>
+      </label>
+
+      <label class="setting" for="max-results">
+        <span class="setting-copy">
+          <span class="setting-name">Result limit</span>
+          <span class="setting-note">Stop loading past this many results</span>
+        </span>
+        <select id="max-results" data-setting="maxResults" class="select">
+          <option value="30">About 30</option>
+          <option value="50" selected>About 50</option>
+          <option value="100">About 100</option>
+        </select>
       </label>
     </section>
 

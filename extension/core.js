@@ -9,14 +9,19 @@
 
   var DEFAULT_SETTINGS = Object.freeze({
     archiveLinks: true,
-    loadMore: true
+    loadMore: true,
+    autoLoad: false,
+    maxResults: 100
   });
 
   function normalizeSettings(value) {
     value = value || {};
+    var max = parseInt(value.maxResults, 10);
     return {
       archiveLinks: value.archiveLinks !== false,
-      loadMore: value.loadMore !== false
+      loadMore: value.loadMore !== false,
+      autoLoad: value.autoLoad === true,
+      maxResults: [30, 50, 100].indexOf(max) !== -1 ? max : 100
     };
   }
 
@@ -156,9 +161,25 @@
     return blocks;
   }
 
+  // Result URLs currently shown on the page, in document order. The popup's
+  // copy-all button hands this list to the clipboard.
+  function collectLoadedUrls(doc, currentHostname) {
+    var results = collectResults(doc, currentHostname);
+    var seen = Object.create(null);
+    var urls = [];
+    for (var i = 0; i < results.length; i++) {
+      if (!seen[results[i].href]) {
+        seen[results[i].href] = true;
+        urls.push(results[i].href);
+      }
+    }
+    return urls;
+  }
+
   return {
     DEFAULT_SETTINGS: DEFAULT_SETTINGS,
     cacheLinks: cacheLinks,
+    collectLoadedUrls: collectLoadedUrls,
     collectResults: collectResults,
     createArchiveRow: createArchiveRow,
     currentStart: currentStart,

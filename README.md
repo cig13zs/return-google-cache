@@ -12,9 +12,14 @@ into the current list.
 
 Archive links can open the latest Wayback Machine capture, check archive.today
 or save the live page. The load-more button requests one Google result page per
-click and stops near 100 results.
+click. A Copy URLs button next to it puts every loaded result URL on the
+clipboard.
 
-Each feature has its own switch. The switches default to on and are stored with
+Loading stops at your result limit: about 30, 50 or 100 results, chosen in the
+popup. Auto-load while scrolling is also available there and defaults to off,
+so pages only grow when you ask them to.
+
+Each feature has its own switch. The switches are stored with
 `chrome.storage.local`.
 
 ## Install
